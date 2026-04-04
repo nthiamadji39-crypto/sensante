@@ -50,3 +50,9 @@ print(f"\n{'=' * 50}")
 print(" Exploration terminée !")
 print(" Prochain lab : entraîner un modèle ML")
 print(f"{'=' * 50}")
+
+# ===== EXERCICE 1 : ANALYSE PAR SEXE ET DIAGNOSTIC =====
+print(f"\n--- Nombre de patients par sexe et diagnostic ---")
+# On groupe par deux colonnes et on compte la taille de chaque groupe
+analyse_croisee = df.groupby(["sexe", "diagnostic"]).size()
+print(analyse_croisee)
