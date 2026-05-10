@@ -184,3 +184,44 @@ print(f"\nProbabilites par classe :")
 for classe, proba in zip(model_loaded.classes_, probas):
     bar = '#' * int(proba * 30)
     print(f"{classe:8s} : {proba:.1%} {bar}")
+
+
+#exo1
+importances = model.feature_importances_
+# Ligne 191
+for name, imp in sorted(zip(feature_cols, importances), 
+                        key=lambda x: x[1], reverse=True):
+    # Ligne 193 (doit être indentée !)
+    print(f" {name:20s} : {imp:.3f}")
+
+
+
+#exo2
+import pandas as pd
+import joblib
+
+# Charger le modèle sérialisé
+model = joblib.load("models/model.pkl")
+
+# Créer 3 patients fictifs avec des profils différents
+patients_fictifs = pd.DataFrame([
+    {
+        "age": 18, "sexe_encoded": 0, "temperature": 36.5, "tension_sys": 120,
+        "toux": 0, "fatigue": 0, "maux_tete": 0, "region_encoded": 1
+    },  # Jeune sans symptômes
+    {
+        "age": 35, "sexe_encoded": 1, "temperature": 39.5, "tension_sys": 125,
+        "toux": 1, "fatigue": 1, "maux_tete": 1, "region_encoded": 2
+    },  # Adulte avec forte fièvre
+    {
+        "age": 70, "sexe_encoded": 0, "temperature": 37.8, "tension_sys": 135,
+        "toux": 1, "fatigue": 0, "maux_tete": 0, "region_encoded": 3
+    }   # Patient âgé avec toux
+])
+
+# Prédire leur diagnostic
+predictions = model.predict(patients_fictifs)
+
+# Afficher les résultats
+for i, pred in enumerate(predictions, start=1):
+    print(f"Patient {i} → Diagnostic prédit : {pred}")
