@@ -1,11 +1,13 @@
 # api/main.py
+# SenSante API-Assistant pre-diagnostic medical
+# Lab 3-Integration de Modeles IA-ESP/UCAD
 
 import joblib
 import numpy as np
-
-from typing import Literal
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
+from fastapi.middleware.cors import CORSMiddleware
+
 
 # =========================================================
 # Schémas Pydantic
@@ -51,6 +53,15 @@ app = FastAPI(
     version="0.2.0"
 )
 
+# etape 6 de Lab4
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # =========================================================
 # Chargement du modèle
 # =========================================================
@@ -80,6 +91,17 @@ def health_check():
         "message": "SenSante API is running"
     }
 
+
+#exercice1
+@app.get("/model-info")
+def model_info():
+
+    return {
+        "type_modele": type(model).__name__,
+        "nombre_arbres": model.n_estimators,
+        "classes": list(model.classes_),
+        "nombre_features": len(feature_cols)
+    }
 
 # =========================================================
 # Endpoint de prédiction

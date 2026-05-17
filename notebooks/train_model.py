@@ -147,7 +147,7 @@ print(f"Classes : {list(model_loaded.classes_)}")
 
 
 
-#etape 7.1
+#etape 7.2
 # Un nouveau patient arrive au centre de sante de Medina
 nouveau_patient = {
 'age': 28,
