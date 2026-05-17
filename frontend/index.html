@@ -133,6 +133,7 @@
         // A remplir etape 4
 
         const API_URL = "http://localhost:8000";
+        const historique = []; // Exercice 2
 
         async function diagnostiquer() {
             // 1. Lire les valeurs du formulaire
@@ -183,60 +184,117 @@
 
         function afficherChargement() {
             document.getElementById("result-section").innerHTML = `
-        <div class="bg-white rounded-xl shadow-md p-6 text-center">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-        <p class="text-gray-500">Analyse en cours...</p>
-        </div>`;
+                <div class="bg-white rounded-xl shadow-md p-6 text-center">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                    <p class="text-gray-500">Analyse en cours...</p>
+                </div>`;
         }
 
         function afficherResultat(r) {
             const couleurs = {
-                palu: { bg: "bg-red-100", text: "text-red-800", bar: "bg-red-500", badge: "bg-red-500" },
+                palu:   { bg: "bg-red-100",    text: "text-red-800",    bar: "bg-red-500",    badge: "bg-red-500" },
                 grippe: { bg: "bg-orange-100", text: "text-orange-800", bar: "bg-orange-500", badge: "bg-orange-500" },
-                typh: { bg: "bg-yellow-100", text: "text-yellow-800", bar: "bg-yellow-500", badge: "bg-yellow-500" },
-                sain: { bg: "bg-green-100", text: "text-green-800", bar: "bg-green-500", badge: "bg-green-500" }
+                typh:   { bg: "bg-yellow-100", text: "text-yellow-800", bar: "bg-yellow-500", badge: "bg-yellow-500" },
+                sain:   { bg: "bg-green-100",  text: "text-green-800",  bar: "bg-green-500",  badge: "bg-green-500" }
+            };
+
+            // Exercice 1 : icônes par diagnostic
+            const icones = {
+                palu:   "🦟",
+                grippe: "🤧",
+                typh:   "🌡️",
+                sain:   "✅"
             };
 
             const c = couleurs[r.diagnostic] || couleurs["sain"];
+            const icone = icones[r.diagnostic] || "🩺";
             const pct = Math.round(r.probabilite * 100);
 
+            // Exercice 2 : ajouter à l'historique
+            historique.unshift({
+            diagnostic: r.diagnostic,
+            probabilite: pct,
+            icone: icone
+            });
+            if (historique.length > 5) historique.pop(); // garder max 5
+            afficherHistorique();
+
             document.getElementById("result-section").innerHTML = `
-        <div class="bg-white rounded-xl shadow-md p-6">
-        <h2 class="text-xl font-bold text-gray-800 mb-4">Resultat</h2>
-
-        <div class="${c.bg} rounded-lg p-4 mb-4">
-            <p class="text-sm text-gray-600">Diagnostic :</p>
-            <p class="text-2xl font-bold ${c.text} uppercase mt-1">${r.diagnostic}</p>
-        </div>
-
-        <div class="mb-4">
-            <div class="flex justify-between mb-1">
-            <span class="text-sm text-gray-600">Probabilite</span>
-            <span class="text-sm font-bold ${c.text}">${pct}%</span>
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-3">
-            <div class="${c.bar} h-3 rounded-full" style="width: ${pct}%"></div>
-            </div>
-        </div>
-
-        <div class="flex items-center gap-2 mb-3">
-            <span class="${c.badge} text-white text-xs px-2 py-1 rounded-full">${r.confiance}</span>
-            <span class="text-sm text-gray-600">confiance</span>
-        </div>
-
-        <div class="bg-gray-50 rounded-lg p-3">
-            <p class="text-sm text-gray-700">${r.message}</p>
-        </div>
-        </div>`;
-        }
+                <div class="bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Resultat</h2>
+                <div class="${c.bg} rounded-lg p-4 mb-4">
+                    <p class="text-sm text-gray-600">Diagnostic :</p>
+                    <p class="text-2xl font-bold ${c.text} uppercase mt-1">
+                    ${icone} ${r.diagnostic}
+                    </p>
+                </div>
+                <div class="mb-4">
+                    <div class="flex justify-between mb-1">
+                    <span class="text-sm text-gray-600">Probabilite</span>
+                    <span class="text-sm font-bold ${c.text}">${pct}%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div class="${c.bar} h-3 rounded-full transition-all duration-500" style="width:${pct}%"></div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="${c.badge} text-white text-xs px-2 py-1 rounded-full">${r.confiance}</span>
+                    <span class="text-sm text-gray-600">confiance</span>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-3">
+                    <p class="text-sm text-gray-700">${r.message}</p>
+                </div>
+                </div>`;
+            }
 
         function afficherErreur(msg) {
             document.getElementById("result-section").innerHTML = `
-        <div class="bg-red-50 border border-red-200 rounded-xl p-6">
-        <p class="text-red-700 font-medium">${msg}</p>
-        <p class="text-red-500 text-sm mt-2">Verifiez votre connexion et reessayez.</p>
-        </div>`;
+                <div class="bg-red-50 border border-red-200 rounded-xl p-6">
+                    <p class="text-red-700 font-medium">${msg}</p>
+                    <p class="text-red-500 text-sm mt-2">Verifiez votre connexion et reessayez.</p>
+                </div>`;
         }
+
+
+        //Exercice 2
+        function afficherHistorique() {
+        // Supprimer l'ancien historique s'il existe
+        const ancien = document.getElementById("historique-section");
+        if (ancien) ancien.remove();
+
+        // Créer le tableau
+        const rows = historique.map((h, i) => `
+            <tr class="border-b border-gray-100">
+            <td class="py-2 px-3 text-gray-500 text-sm">${i + 1}</td>
+            <td class="py-2 px-3 text-sm font-medium">${h.icone} ${h.diagnostic}</td>
+            <td class="py-2 px-3 text-sm text-gray-600">${h.probabilite}%</td>
+            </tr>
+        `).join("");
+
+        const section = document.createElement("div");
+        section.id = "historique-section";
+        section.className = "max-w-4xl mx-auto px-4 pb-8";
+        section.innerHTML = `
+            <div class="bg-white rounded-xl shadow-md p-6 mt-2">
+            <h3 class="text-lg font-bold text-gray-800 mb-3">
+                📋 Dernières consultations
+            </h3>
+            <table class="w-full">
+                <thead>
+                <tr class="border-b-2 border-gray-200">
+                    <th class="text-left py-2 px-3 text-sm text-gray-500">#</th>
+                    <th class="text-left py-2 px-3 text-sm text-gray-500">Diagnostic</th>
+                    <th class="text-left py-2 px-3 text-sm text-gray-500">Probabilité</th>
+                </tr>
+                </thead>
+                <tbody>${rows}</tbody>
+            </table>
+            </div>`;
+
+        // Insérer après le main
+        document.querySelector("main").after(section);
+        }
+
 
     </script>
 
