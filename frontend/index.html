@@ -192,18 +192,18 @@
 
         function afficherResultat(r) {
             const couleurs = {
-                palu:   { bg: "bg-red-100",    text: "text-red-800",    bar: "bg-red-500",    badge: "bg-red-500" },
+                palu: { bg: "bg-red-100", text: "text-red-800", bar: "bg-red-500", badge: "bg-red-500" },
                 grippe: { bg: "bg-orange-100", text: "text-orange-800", bar: "bg-orange-500", badge: "bg-orange-500" },
-                typh:   { bg: "bg-yellow-100", text: "text-yellow-800", bar: "bg-yellow-500", badge: "bg-yellow-500" },
-                sain:   { bg: "bg-green-100",  text: "text-green-800",  bar: "bg-green-500",  badge: "bg-green-500" }
+                typh: { bg: "bg-yellow-100", text: "text-yellow-800", bar: "bg-yellow-500", badge: "bg-yellow-500" },
+                sain: { bg: "bg-green-100", text: "text-green-800", bar: "bg-green-500", badge: "bg-green-500" }
             };
 
             // Exercice 1 : icônes par diagnostic
             const icones = {
-                palu:   "🦟",
+                palu: "🦟",
                 grippe: "🤧",
-                typh:   "🌡️",
-                sain:   "✅"
+                typh: "🌡️",
+                sain: "✅"
             };
 
             const c = couleurs[r.diagnostic] || couleurs["sain"];
@@ -212,9 +212,9 @@
 
             // Exercice 2 : ajouter à l'historique
             historique.unshift({
-            diagnostic: r.diagnostic,
-            probabilite: pct,
-            icone: icone
+                diagnostic: r.diagnostic,
+                probabilite: pct,
+                icone: icone
             });
             if (historique.length > 5) historique.pop(); // garder max 5
             afficherHistorique();
@@ -245,7 +245,55 @@
                     <p class="text-sm text-gray-700">${r.message}</p>
                 </div>
                 </div>`;
+
+            // NOUVEAU : appeler /explain automatiquement
+            demanderExplication(r);
+        }
+
+        async function demanderExplication(diagnostic_data) {
+            const explainData = {
+                diagnostic: diagnostic_data.diagnostic,
+                probabilite: diagnostic_data.probabilite,
+                age: parseInt(document.getElementById("age").value),
+                sexe: document.getElementById("sexe").value,
+                temperature: parseFloat(document.getElementById("temperature").value),
+                region: document.getElementById("region").value
+            };
+
+            const section = document.getElementById("result-section");
+
+            // Placeholder pendant le chargement
+            const explDiv = document.createElement("div");
+            explDiv.id = "explication-zone";
+            explDiv.innerHTML = `
+                <div class="mt-4 bg-purple-50 rounded-lg p-4 border border-purple-200">
+                    <p class="text-sm text-purple-600 font-medium mb-2">Explication (Llama 3)</p>
+                    <p class="text-gray-500 text-sm animate-pulse">Génération en cours...</p>
+                </div>`;
+            section.querySelector(".bg-white").appendChild(explDiv);
+
+            try {
+                const response = await fetch(API_URL + "/explain", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(explainData)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    explDiv.innerHTML = `
+                    <div class="mt-4 bg-purple-50 rounded-lg p-4 border border-purple-200">
+                    <p class="text-sm text-purple-600 font-medium mb-2">Explication (Llama 3)</p>
+                    <p class="text-gray-700 text-sm leading-relaxed">${result.explication}</p>
+                    </div>`;
+                }
+            } catch (error) {
+                explDiv.innerHTML = `
+                <div class="mt-4 bg-gray-50 rounded-lg p-3">
+                    <p class="text-gray-400 text-sm">Explication non disponible.</p>
+                </div>`;
             }
+        }
 
         function afficherErreur(msg) {
             document.getElementById("result-section").innerHTML = `
@@ -258,12 +306,12 @@
 
         //Exercice 2
         function afficherHistorique() {
-        // Supprimer l'ancien historique s'il existe
-        const ancien = document.getElementById("historique-section");
-        if (ancien) ancien.remove();
+            // Supprimer l'ancien historique s'il existe
+            const ancien = document.getElementById("historique-section");
+            if (ancien) ancien.remove();
 
-        // Créer le tableau
-        const rows = historique.map((h, i) => `
+            // Créer le tableau
+            const rows = historique.map((h, i) => `
             <tr class="border-b border-gray-100">
             <td class="py-2 px-3 text-gray-500 text-sm">${i + 1}</td>
             <td class="py-2 px-3 text-sm font-medium">${h.icone} ${h.diagnostic}</td>
@@ -271,10 +319,10 @@
             </tr>
         `).join("");
 
-        const section = document.createElement("div");
-        section.id = "historique-section";
-        section.className = "max-w-4xl mx-auto px-4 pb-8";
-        section.innerHTML = `
+            const section = document.createElement("div");
+            section.id = "historique-section";
+            section.className = "max-w-4xl mx-auto px-4 pb-8";
+            section.innerHTML = `
             <div class="bg-white rounded-xl shadow-md p-6 mt-2">
             <h3 class="text-lg font-bold text-gray-800 mb-3">
                 📋 Dernières consultations
@@ -291,8 +339,8 @@
             </table>
             </div>`;
 
-        // Insérer après le main
-        document.querySelector("main").after(section);
+            // Insérer après le main
+            document.querySelector("main").after(section);
         }
 
 
