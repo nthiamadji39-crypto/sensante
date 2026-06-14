@@ -258,9 +258,7 @@
                 age: parseInt(document.getElementById("age").value),
                 sexe: document.getElementById("sexe").value,
                 temperature: parseFloat(document.getElementById("temperature").value),
-                //region: document.getElementById("region").value
-                //exo3 lab5
-                region: data.region
+                region: document.getElementById("region").value
             };
 
             const section = document.getElementById("result-section");
@@ -269,10 +267,10 @@
             const explDiv = document.createElement("div");
             explDiv.id = "explication-zone";
             explDiv.innerHTML = `
-                <div class="mt-4 bg-purple-50 rounded-lg p-4 border border-purple-200">
-                    <p class="text-sm text-purple-600 font-medium mb-2">Explication (Llama 3)</p>
-                    <p class="text-gray-500 text-sm animate-pulse">Génération en cours...</p>
-                </div>`;
+        <div class="mt-4 bg-purple-50 rounded-lg p-4 border border-purple-200">
+            <p class="text-sm text-purple-600 font-medium mb-2">Explication (Llama 3)</p>
+            <p class="text-gray-500 text-sm animate-pulse">Génération en cours...</p>
+        </div>`;
             section.querySelector(".bg-white").appendChild(explDiv);
 
             try {
@@ -285,19 +283,6 @@
                 if (response.ok) {
                     const result = await response.json();
                     explDiv.innerHTML = `
-                    <div class="mt-4 bg-purple-50 rounded-lg p-4 border border-purple-200">
-                    <p class="text-sm text-purple-600 font-medium mb-2">Explication (Llama 3)</p>
-                    <p class="text-gray-700 text-sm leading-relaxed">${result.explication}</p>
-                    </div>`;
-                }
-            } catch (error) {
-                explDiv.innerHTML = `
-                <div class="mt-4 bg-gray-50 rounded-lg p-3">
-                    <p class="text-gray-400 text-sm">Explication non disponible.</p>
-                </div>`;
-            }
-
-            explDiv.innerHTML = `
                 <div class="mt-4 bg-purple-50 rounded-lg p-4 border border-purple-200">
                     <p class="text-sm text-purple-600 font-medium mb-2">Explication (Llama 3)</p>
                     <p class="text-gray-700 text-sm leading-relaxed">${result.explication}</p>
@@ -309,12 +294,19 @@
                     </p>
                 </div>
                 <div class="mt-2 text-center">
-                    <a href="https://www.google.com/maps/search/centre+de+santé+${data.region}"
+                    <a href="https://www.google.com/maps/search/centre+de+santé+${explainData.region}"
                         target="_blank"
                         class="inline-block bg-blue-600 text-white text-xs px-4 py-2 rounded-lg">
-                        🏥 Trouver un centre de santé à ${data.region}
+                        🏥 Trouver un centre de santé à ${explainData.region}
                     </a>
                 </div>`;
+                }
+            } catch (error) {
+                explDiv.innerHTML = `
+            <div class="mt-4 bg-gray-50 rounded-lg p-3">
+                <p class="text-gray-400 text-sm">Explication non disponible.</p>
+            </div>`;
+            }
         }
 
         function afficherErreur(msg) {
